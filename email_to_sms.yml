@@ -1,0 +1,18 @@
+---
+# List of email froms to be routed to SMS
+hi_prio_froms:
+  - my@example.com
+  - another@example.com
+  
+#Configuration of Gmail
+gmail_username: XXXXXXX@gmail.com
+gmail_password: YYYYYYYY
+
+# SMS configuration
+sms_to: +1xxxxxxx
+sms_from: +1xxxxxxxx
+
+# Twilio configuration - see https://www.twilio.com/help/faq/twilio-basics/what-is-the-auth-token-and-how-can-i-change-it
+twilio_sid: XXXXXXXXXXXXXXXXXX
+twilio_token: YYYYYYYYYYYYYYYYYYY
+
