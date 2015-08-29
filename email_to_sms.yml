@@ -3,6 +3,7 @@
 hi_prio_froms:
   - my@example.com
   - another@example.com
+  - !ruby/regexp '/^.+@mycompany.com$/'  #You can also use regular expressions
   
 #Configuration of Gmail
 gmail_username: XXXXXXX@gmail.com

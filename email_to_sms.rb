@@ -4,10 +4,13 @@ require 'yaml'
 
 class EmailToSms
   
+  MAX_EMAIL_TO_PROCESS=20
+  SLEEP_AFTER_CHECK_CYCLE=30
+  
   def initialize(config_file)
     @email_config = YAML.load_file(config_file)
 
-    @hi_prio_from = @email_config['hi_prio_froms'] || raise("Missing configuration for hi_prio_froms")
+    @hi_prio_from = Regexp.union(@email_config['hi_prio_froms']) || raise("Missing configuration for hi_prio_froms")
 
     #Configuration of Gmail
     @gmail_username = @email_config['gmail_username'] || raise("Missing configuration for gmail_username")
@@ -28,8 +31,8 @@ class EmailToSms
     while (true) do
       main_loop
       
-      puts "Sleeping 30 seconds"
-      sleep 30
+      puts "Sleeping #{SLEEP_AFTER_CHECK_CYCLE} seconds"
+      sleep SLEEP_AFTER_CHECK_CYCLE
     end
   end
   
@@ -38,7 +41,9 @@ class EmailToSms
   # Connect to gmail, check for important messages, send an SMS with the subject of the important ones
   def main_loop
     Gmail.connect!(@gmail_username, @gmail_password) do |gmail|
-      gmail.inbox.find(:unread).each{|email| process_email(email) }
+      gmail.inbox.find(:unread)[0..MAX_EMAIL_TO_PROCESS].each do |email| 
+        process_email(email)
+      end
     end
   end
   
@@ -48,7 +53,7 @@ class EmailToSms
 
     puts "Processing [from=#{from}] [who=#{email.from[0].name}] [subject=#{email.subject}]"
 
-    if @hi_prio_from.include?(from)
+    if is_a_match?(from)
       send_sms(email)
       email.read! #we mark the email as read, so it will be skipped thereafter
     end
@@ -63,6 +68,10 @@ class EmailToSms
       to: @default_to,
       body: "#{email.from[0].name}: #{email.subject}"
     )
+  end
+  
+  def is_a_match?(from)
+    @hi_prio_from.match(from)
   end
   
 end
