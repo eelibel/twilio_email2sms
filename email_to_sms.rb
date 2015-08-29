@@ -4,6 +4,7 @@ require 'yaml'
 
 class EmailToSms
   
+  MAX_EMAIL_TO_PROCESS=20
   def initialize(config_file)
     @email_config = YAML.load_file(config_file)
 
@@ -38,7 +39,9 @@ class EmailToSms
   # Connect to gmail, check for important messages, send an SMS with the subject of the important ones
   def main_loop
     Gmail.connect!(@gmail_username, @gmail_password) do |gmail|
-      gmail.inbox.find(:unread).each{|email| process_email(email) }
+      gmail.inbox.find(:unread)[0..MAX_EMAIL_TO_PROCESS].each do |email| 
+        process_email(email)
+      end
     end
   end
   
