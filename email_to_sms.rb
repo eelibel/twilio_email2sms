@@ -7,7 +7,7 @@ class EmailToSms
   def initialize(config_file)
     @email_config = YAML.load_file(config_file)
 
-    @hi_prio_from = @email_config['hi_prio_froms'] || raise("Missing configuration for hi_prio_froms")
+    @hi_prio_from = Regexp.union(@email_config['hi_prio_froms']) || raise("Missing configuration for hi_prio_froms")
 
     #Configuration of Gmail
     @gmail_username = @email_config['gmail_username'] || raise("Missing configuration for gmail_username")
@@ -48,7 +48,7 @@ class EmailToSms
 
     puts "Processing [from=#{from}] [who=#{email.from[0].name}] [subject=#{email.subject}]"
 
-    if @hi_prio_from.include?(from)
+    if is_a_match?(from)
       send_sms(email)
       email.read! #we mark the email as read, so it will be skipped thereafter
     end
@@ -63,6 +63,10 @@ class EmailToSms
       to: @default_to,
       body: "#{email.from[0].name}: #{email.subject}"
     )
+  end
+  
+  def is_a_match?(from)
+    @hi_prio_from.match(from)
   end
   
 end
