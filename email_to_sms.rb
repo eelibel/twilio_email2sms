@@ -5,6 +5,8 @@ require 'yaml'
 class EmailToSms
   
   MAX_EMAIL_TO_PROCESS=20
+  SLEEP_AFTER_CHECK_CYCLE=30
+  
   def initialize(config_file)
     @email_config = YAML.load_file(config_file)
 
@@ -29,8 +31,8 @@ class EmailToSms
     while (true) do
       main_loop
       
-      puts "Sleeping 30 seconds"
-      sleep 30
+      puts "Sleeping #{SLEEP_AFTER_CHECK_CYCLE} seconds"
+      sleep SLEEP_AFTER_CHECK_CYCLE
     end
   end
   
